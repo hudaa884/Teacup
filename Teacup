@@ -4,3 +4,53 @@ version: 1.0.0
 codeOwners:
   - '0x7Ca0F8b2CedfA4FFDAAeB3540723CBb3c6b72D92'
 quorum: 1
+import cv2
+
+def slow_motion_opencv(input_path, output_path, slow_factor=2):
+    """
+    Memperlambat video menggunakan OpenCV dengan mengurangi frame rate.
+
+    Args:
+        input_path (str): Path ke file video input.
+        output_path (str): Path untuk menyimpan file video output.
+        slow_factor (int): Faktor perlambatan (mis. 2 untuk 2x lebih lambat).
+    """
+    # Baca video asli
+    cap = cv2.VideoCapture(input_path)
+
+    if not cap.isOpened():
+        print("Error: Tidak dapat membuka video.")
+        return
+
+    # Dapatkan properti video asli
+    fps_original = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v') # Codec untuk file .mp4
+
+    # Hitung FPS baru
+    fps_new = fps_original / slow_factor
+    print(f"Video asli: {fps_original} FPS")
+    print(f"Video baru: {fps_new} FPS (diperlambat {slow_factor}x)")
+
+    # Buat objek VideoWriter untuk video output
+    out = cv2.VideoWriter(output_path, fourcc, fps_new, (width, height))
+
+    # Loop melalui setiap frame dan tulis ke file output
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        out.write(frame)
+
+    # Lepaskan semua sumber daya
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
+    print(f"Video berhasil diperlambat dan disimpan di: {output_path}")
+
+# --- Cara Penggunaan ---
+# Ganti 'video_asli.mp4' dengan path video Anda
+# Ganti 'video_lambat_opencv.mp4' dengan nama file output yang Anda inginkan
+slow_motion_opencv('video_asli.mp4', 'video_lambat_opencv.mp4', slow_factor=2)
+ 
